@@ -17,15 +17,19 @@
 
 // Optional extensions on the strict schema. All `add-field` (not
 // `set-required`) so a vanilla JSON Resume document still validates.
-// Field names mirror neat-cv's existing template vocabulary
-// (`item-with-level` → `level`, `item-pills(keywords)` → `keywords`).
-//   - basics.positions       — array of roles, overrides single-string `label`
-//   - basics.profiles[].icon — Font Awesome name for custom-link profiles
-//   - basics.nationality     — Personal block (sidebar)
-//   - basics.birthdate       — Personal block (sidebar)
-//   - languages[].level      — drives item-with-level rendering
-//   - skills[].entries       — per-keyword item-with-level rendering
-//   - education[].summary    — dissertation / thesis line on the entry
+// The `level` name is borrowed from canonical JSON Resume's own
+// `skills[].level` (string, "e.g. Master") — same vocabulary, our
+// usages are numeric (driving `item-with-level` bars) and at nested
+// paths so they don't collide with the canonical field.
+//   - basics.positions          — array of roles, overrides single-string `label`
+//   - basics.profiles[].icon    — Font Awesome name for custom-link profiles
+//   - basics.nationality        — Personal block (sidebar)
+//   - basics.birthdate          — Personal block (sidebar)
+//   - languages[].level         — numeric, drives item-with-level
+//                                 (canonical `languages[].fluency` stays the subtitle)
+//   - skills[].entries[].level  — numeric per-keyword, distinct from the
+//                                 canonical per-group string `skills[].level`
+//   - education[].summary       — dissertation / thesis line on the entry
 #let _schema = {
   let s = resume-schema-strict
   s = add-field(s, lens(("basics",)), "positions", array-of(str-type))
