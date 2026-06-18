@@ -17,33 +17,45 @@
   (firstname: parts.at(0), lastname: parts.slice(1).join(" "))
 }
 
+// Empty `().join(...)` is `none` in Typst, which trips the `line == ""`
+// checks below; always coerce to a real string first.
+#let _safe-join(arr, sep) = if arr.len() == 0 { "" } else { arr.join(sep) }
+
 /// Two-line collapse of the structured JSON Resume location into the
 /// content shape neat-cv's `address` accepts.
 ///
 /// -> content | none
 #let _format-address(location) = {
   if location == none or type(location) != dictionary { return none }
-  let line1-parts = (
-    location.at("address", default: none),
-    location.at("city", default: none),
-    location.at("region", default: none),
-  ).filter(p => p != none and p != "")
-  let line2-parts = (
-    location.at("postalCode", default: none),
-    location.at("countryCode", default: none),
-  ).filter(p => p != none and p != "")
-  let line1 = line1-parts.join(", ")
-  let line2 = line2-parts.join(" ")
+  let line1 = _safe-join(
+    (
+      location.at("address", default: none),
+      location.at("city", default: none),
+      location.at("region", default: none),
+    ).filter(p => p != none and p != ""),
+    ", ",
+  )
+  let line2 = _safe-join(
+    (
+      location.at("postalCode", default: none),
+      location.at("countryCode", default: none),
+    ).filter(p => p != none and p != ""),
+    " ",
+  )
   if line1 == "" and line2 == "" { return none }
   if line2 == "" { return [#line1] }
   if line1 == "" { return [#line2] }
   [#line1 \ #line2]
 }
 
+// Keys must stay in sync with `social-links()`'s `social-defs` table
+// in src/components.typ — neat-cv's renderer recognises exactly this
+// set (plus `matrix`, surfaced via contact-info()).
 #let _known-networks = (
   twitter: "twitter",
   x: "twitter",
   mastodon: "mastodon",
+  matrix: "matrix",
   github: "github",
   gitlab: "gitlab",
   linkedin: "linkedin",

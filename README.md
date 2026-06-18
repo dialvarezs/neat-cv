@@ -32,7 +32,7 @@ A modern and elegant CV template for Typst, inspired by [Awesome CV](https://git
 
 ### Software
 
-- [typst](https://typst.app/) (tested with v0.13.0+)
+- [typst](https://typst.app/) (tested with v0.15.0+)
 
 ### Fonts
 
@@ -208,7 +208,10 @@ data; they override the JSON-derived defaults.
 
 If you'd rather drive the layout yourself — keeping the imperative
 template style and only borrowing the data — use `from-json-resume`,
-which returns a `(author: …, sections: …)` dict:
+which returns a `(author: …, sections: …)` dict. JSON Resume fields are
+all optional, so use `.at(..., default: …)` defensively, and remember
+that dates pass through as raw ISO strings (the one-call wrapper above
+prettifies them via its own formatter):
 
 ```typst
 #import "@preview/neat-cv:1.1.0": cv, cv-with-side, entry, from-json-resume
@@ -221,13 +224,30 @@ which returns a `(author: …, sections: …)` dict:
   // …your sidebar…
 ][
   = Experience
-  #for w in resume.sections.work {
+  #for w in resume.sections.at("work", default: ()) {
     entry(
-      title: w.position,
-      institution: w.name,
-      date: w.startDate,
+      title: w.at("position", default: ""),
+      institution: w.at("name", default: ""),
+      date: w.at("startDate", default: ""),
       w.at("summary", default: ""),
     )
   }
 ]
 ```
+
+#### Optional schema extensions
+
+`from-json-resume` / `neat-cv-from-json` accept a handful of optional
+fields beyond canonical JSON Resume so a single `resume.json` can drive
+the full template. All extensions are opt-in; a vanilla document still
+validates and renders.
+
+| Field | Type | Effect |
+|---|---|---|
+| `basics.positions` | `array<string>` | Multi-line role header (overrides single-string `basics.label`) |
+| `basics.profiles[].icon` | `string` | Font Awesome icon name for custom-link profiles (e.g. `"car"`) |
+| `basics.nationality` | `string` | "Personal" sidebar block |
+| `basics.birthdate` | `string` | "Personal" sidebar block (passed through verbatim) |
+| `languages[].level` | `number` | `item-with-level` rating bars (canonical `fluency` becomes the subtitle) |
+| `skills[].entries[]` | `array<{name, level}>` | Per-keyword `item-with-level` bars (mutually exclusive with `keywords`) |
+| `education[].summary` | `content` | Dissertation / thesis line above score / coursework |

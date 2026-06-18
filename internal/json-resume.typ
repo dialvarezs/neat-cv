@@ -50,6 +50,11 @@
 
 // ---- Render helpers ----
 
+// Empty `().join(...)` returns `none` in Typst, which trips `entry()`'s
+// `x != ""` guards downstream and produces orphan icons / empty rows.
+// Always coerce to a real string.
+#let _safe-join(arr, sep) = if arr.len() == 0 { "" } else { arr.join(sep) }
+
 /// One-line collapse for `entry()`'s `location` slot.
 ///
 /// -> string
@@ -57,11 +62,14 @@
   if loc == none { return "" }
   if type(loc) == str { return loc }
   if type(loc) == dictionary {
-    return (
-      loc.at("city", default: none),
-      loc.at("region", default: none),
-      loc.at("countryCode", default: none),
-    ).filter(p => p != none and p != "").join(", ")
+    return _safe-join(
+      (
+        loc.at("city", default: none),
+        loc.at("region", default: none),
+        loc.at("countryCode", default: none),
+      ).filter(p => p != none and p != ""),
+      ", ",
+    )
   }
   ""
 }
@@ -71,23 +79,22 @@
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 )
 
-/// Iso8601 → short human label. Malformed input has already been
-/// rejected upstream by gairm-import's schema.
+/// Iso8601 → short human label. Defensive against year-as-JSON-number
+/// and out-of-range months (the strict iso8601 pattern accepts e.g.
+/// "2024-00" — we fall back to year-only rather than panic).
 ///
 /// -> string
 #let _format-date(d) = {
   if d == none or d == "" { return "" }
-  let parts = d.split("-")
+  let s = if type(d) == str { d } else { str(d) }
+  let parts = s.split("-")
   if parts.len() == 1 { return parts.at(0) }
-  if parts.len() >= 2 {
-    let year = parts.at(0)
-    let month = int(parts.at(1))
-    if month >= 1 and month <= 12 {
-      return _months.at(month - 1) + " " + year
-    }
-    return year
+  let year = parts.at(0)
+  let mm = parts.at(1)
+  if mm.match(regex("^(0[1-9]|1[0-2])$")) != none {
+    return _months.at(int(mm) - 1) + " " + year
   }
-  d
+  year
 }
 
 /// Open-ended entries (no `endDate`) render as "… – present", matching
@@ -115,13 +122,15 @@
 
 // ---- Body section emitters ----
 
-#let _render-experience(items) = {
+// Work-shaped sections share `position` + a date range + summary/highlights;
+// only the heading and the institution-name field differ.
+#let _render-work-shaped(items, heading, employer-field) = {
   if items.len() == 0 { return [] }
-  [= Experience]
+  [= #heading]
   for w in items {
     entry(
       title: w.at("position", default: ""),
-      institution: w.at("name", default: ""),
+      institution: w.at(employer-field, default: ""),
       location: _format-location-inline(w.at("location", default: none)),
       date: _format-date-range(
         w.at("startDate", default: none),
@@ -134,6 +143,9 @@
     )
   }
 }
+
+#let _render-experience(items) = _render-work-shaped(items, "Experience", "name")
+#let _render-volunteer(items) = _render-work-shaped(items, "Volunteering", "organization")
 
 #let _render-education(items) = {
   if items.len() == 0 { return [] }
@@ -167,26 +179,6 @@
   }
 }
 
-#let _render-volunteer(items) = {
-  if items.len() == 0 { return [] }
-  [= Volunteering]
-  for v in items {
-    entry(
-      title: v.at("position", default: ""),
-      institution: v.at("organization", default: ""),
-      location: "",
-      date: _format-date-range(
-        v.at("startDate", default: none),
-        v.at("endDate", default: none),
-      ),
-      _entry-body(
-        v.at("summary", default: none),
-        v.at("highlights", default: ()),
-      ),
-    )
-  }
-}
-
 #let _render-projects(items) = {
   if items.len() == 0 { return [] }
   [= Projects]
@@ -205,7 +197,7 @@
     }
     entry(
       title: p.at("name", default: ""),
-      institution: p.at("roles", default: ()).join(", "),
+      institution: _safe-join(p.at("roles", default: ()), ", "),
       location: "",
       date: _format-date-range(
         p.at("startDate", default: none),
@@ -216,47 +208,27 @@
   }
 }
 
-#let _render-awards(items) = {
+// Flat single-date sections (awards / certificates / publications)
+// share an `entry()` shape — only the field names and heading differ.
+// `summary-key: none` for sections without a body field.
+#let _render-flat-entries(items, heading, title-key, inst-key, date-key, summary-key) = {
   if items.len() == 0 { return [] }
-  [= Awards]
-  for a in items {
+  [= #heading]
+  for it in items {
+    let body = if summary-key != none { it.at(summary-key, default: "") } else { "" }
     entry(
-      title: a.at("title", default: ""),
-      institution: a.at("awarder", default: ""),
+      title: it.at(title-key, default: ""),
+      institution: it.at(inst-key, default: ""),
       location: "",
-      date: _format-date(a.at("date", default: none)),
-      a.at("summary", default: ""),
+      date: _format-date(it.at(date-key, default: none)),
+      body,
     )
   }
 }
 
-#let _render-certificates(items) = {
-  if items.len() == 0 { return [] }
-  [= Certificates]
-  for c in items {
-    entry(
-      title: c.at("name", default: ""),
-      institution: c.at("issuer", default: ""),
-      location: "",
-      date: _format-date(c.at("date", default: none)),
-      "",
-    )
-  }
-}
-
-#let _render-publications(items) = {
-  if items.len() == 0 { return [] }
-  [= Publications]
-  for pub in items {
-    entry(
-      title: pub.at("name", default: ""),
-      institution: pub.at("publisher", default: ""),
-      location: "",
-      date: _format-date(pub.at("releaseDate", default: none)),
-      pub.at("summary", default: ""),
-    )
-  }
-}
+#let _render-awards(items) = _render-flat-entries(items, "Awards", "title", "awarder", "date", "summary")
+#let _render-certificates(items) = _render-flat-entries(items, "Certificates", "name", "issuer", "date", none)
+#let _render-publications(items) = _render-flat-entries(items, "Publications", "name", "publisher", "releaseDate", "summary")
 
 #let _render-references(items) = {
   if items.len() == 0 { return [] }
@@ -312,14 +284,19 @@
   #contact-info()
   ]
 
+  // `parbreak()` between fields so Nationality and Date of birth don't
+  // collide on one rendered line (markup `\n` alone runs them together).
   let nationality = basics.at("nationality", default: none)
   let birthdate = basics.at("birthdate", default: none)
   if nationality != none or birthdate != none {
     [= Personal]
-    if nationality != none [Nationality: #nationality
-    ]
-    if birthdate != none [Date of birth: #birthdate
-    ]
+    if nationality != none {
+      [Nationality: #nationality]
+      parbreak()
+    }
+    if birthdate != none {
+      [Date of birth: #birthdate]
+    }
   }
 
   // `level` (numeric) → item-with-level with `fluency` as subtitle;
@@ -333,24 +310,34 @@
       let fluency = l.at("fluency", default: "")
       if level != none {
         item-with-level(lang, level, subtitle: fluency)
-      } else {
+      } else if fluency != "" {
         [- #lang — #emph(fluency)]
+      } else {
+        [- #lang]
       }
     }
   }
 
   // `entries[]` (levelled items) → per-item item-with-level. Falls
   // back to `keywords[]` rendered as item-pills (canonical JSON Resume).
+  // A levelless entry degrades to a bullet rather than a zero-filled bar.
   for s in sections.at("skills", default: ()) {
     let name = s.at("name", default: "")
     let entries = s.at("entries", default: ())
     let keywords = s.at("keywords", default: ())
+    if entries.len() == 0 and keywords.len() == 0 { continue }
     if name != "" { [= #name] }
     if entries.len() > 0 {
       for e in entries {
-        item-with-level(e.at("name", default: ""), e.at("level", default: 0))
+        let item-name = e.at("name", default: "")
+        let level = e.at("level", default: none)
+        if level != none {
+          item-with-level(item-name, level)
+        } else {
+          [- #item-name]
+        }
       }
-    } else if keywords.len() > 0 {
+    } else {
       item-pills(keywords)
     }
   }
@@ -383,10 +370,25 @@
         + repr(rest.pos()),
     )
   }
+  let named = rest.named()
+  // The wrapper owns `body` (it renders the sidebar+body via cv-with-side);
+  // a caller-supplied `body:` would collide with the trailing positional.
+  if "body" in named {
+    panic(
+      "neat-cv-from-json controls the body via cv-with-side. To inject custom markup, call `from-json-resume(data)` and compose `cv(...)` yourself.",
+    )
+  }
   let parsed = from-json-resume(data)
-  // Caller-supplied `author:` overrides the JSON-derived one.
-  let kwargs = (author: parsed.author)
-  for (k, v) in rest.named() { kwargs.insert(k, v) }
+  // Merge a caller-supplied `author:` into the JSON-derived one (rather
+  // than replacing it wholesale) so partial overrides don't silently
+  // drop email / phone / profile fields.
+  let merged-author = if "author" in named {
+    (..parsed.author, ..named.at("author"))
+  } else { parsed.author }
+  let kwargs = (author: merged-author)
+  for (k, v) in named {
+    if k != "author" { kwargs.insert(k, v) }
+  }
   cv(
     ..kwargs,
     cv-with-side(

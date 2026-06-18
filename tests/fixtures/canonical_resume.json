@@ -58,12 +58,39 @@
       "endDate": "1943"
     }
   ],
+  "volunteer": [
+    {
+      "organization": "Hill Valley Science Club",
+      "position": "Mentor",
+      "startDate": "1985",
+      "endDate": "1990",
+      "summary": "Mentored aspiring young scientists.",
+      "highlights": ["Ran weekend lab sessions", "Coordinated regional science fair entries"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "DeLorean Time Machine",
+      "startDate": "1985",
+      "endDate": "1990",
+      "description": "A modified DMC DeLorean equipped with a flux capacitor.",
+      "highlights": ["Achieves temporal displacement at 88 mph", "Powered by Mr. Fusion home reactor"],
+      "keywords": ["Temporal mechanics", "Automotive engineering"]
+    }
+  ],
   "awards": [
     {
       "title": "Lifetime Achievement in Innovation",
       "date": "1990",
       "awarder": "International Society of Inventors",
       "summary": "For a lifetime of inventive contributions to science and engineering."
+    }
+  ],
+  "certificates": [
+    {
+      "name": "Nuclear Materials Handling",
+      "date": "1985",
+      "issuer": "United States Department of Energy"
     }
   ],
   "skills": [
