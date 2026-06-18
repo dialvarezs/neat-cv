@@ -6,24 +6,40 @@
 
 #import "@preview/gairm-import:0.8.1": (
   parse as _parse, resume-schema-strict,
-  lens, add-field, content-type,
+  lens, add-field, object, array-of,
+  str-type, number-type, content-type,
 )
 #import "../src/cv.typ": cv, cv-with-side
 #import "../src/components.typ": (
-  contact-info, entry, item-pills, reference, social-links,
+  contact-info, entry, item-pills, item-with-level, reference, social-links,
 )
 #import "json-resume-mapping.typ": basics-to-author
 
-// JSON Resume's canonical `education[]` has no body field (only
-// `courses[]` for coursework). Declare a `summary` extension so the
-// upstream template's "Dissertation: …" / "Thesis: …" lines land
-// somewhere — a common convention in JSON Resume documents in the wild.
-#let _schema = add-field(
-  resume-schema-strict,
-  lens(("education", "items")),
-  "summary",
-  content-type,
-)
+// Optional extensions on the strict schema. All `add-field` (not
+// `set-required`) so a vanilla JSON Resume document still validates:
+//   - basics.positions       — array of roles, overrides single-string `label`
+//   - basics.profiles[].icon — Font Awesome name for custom-link profiles
+//   - basics.nationality     — Personal block (sidebar)
+//   - basics.birthdate       — Personal block (sidebar)
+//   - languages[].rating     — item-with-level rendering (mirrors altacv)
+//   - skills[].entries       — per-keyword item-with-level rendering
+//   - education[].summary    — dissertation / thesis line on the entry
+#let _schema = {
+  let s = resume-schema-strict
+  s = add-field(s, lens(("basics",)), "positions", array-of(str-type))
+  s = add-field(s, lens(("basics", "profiles", "items")), "icon", str-type)
+  s = add-field(s, lens(("basics",)), "nationality", str-type)
+  s = add-field(s, lens(("basics",)), "birthdate", str-type)
+  s = add-field(s, lens(("languages", "items")), "rating", number-type)
+  s = add-field(
+    s,
+    lens(("skills", "items")),
+    "entries",
+    array-of(object((name: str-type, rating: number-type))),
+  )
+  s = add-field(s, lens(("education", "items")), "summary", content-type)
+  s
+}
 
 
 // ---- Render helpers ----
@@ -261,8 +277,8 @@
 }
 
 // Sidebar order mirrors the canonical `template/cv.typ`: summary →
-// interests → contact → languages → skills → social links at the
-// bottom.
+// interests → contact → personal → languages → skills → social
+// links at the bottom.
 #let _render-sidebar(sections) = {
   let basics = sections.at("basics", default: (:))
   let summary = basics.at("summary", default: none)
@@ -276,9 +292,13 @@
     for i in interests {
       let name = i.at("name", default: "")
       let keywords = i.at("keywords", default: ())
-      if keywords.len() > 0 [- #name: #keywords.join(", ")
-      ] else [- #name
-      ]
+      if keywords.len() > 0 {
+        [- #name: #keywords.join(", ")
+        ]
+      } else {
+        [- #name
+        ]
+      }
     }
   }
 
@@ -286,18 +306,47 @@
   #contact-info()
   ]
 
-  let languages = sections.at("languages", default: ())
-  if languages.len() > 0 {
-    [= Languages]
-    for l in languages [- #l.at("language", default: "") — _#l.at("fluency", default: "")_
+  let nationality = basics.at("nationality", default: none)
+  let birthdate = basics.at("birthdate", default: none)
+  if nationality != none or birthdate != none {
+    [= Personal]
+    if nationality != none [Nationality: #nationality
+    ]
+    if birthdate != none [Date of birth: #birthdate
     ]
   }
 
+  // `rating` (numeric) → item-with-level with `fluency` as subtitle.
+  // Mirrors altacv's languages[].rating extension.
+  let languages = sections.at("languages", default: ())
+  if languages.len() > 0 {
+    [= Languages]
+    for l in languages {
+      let lang = l.at("language", default: "")
+      let rating = l.at("rating", default: none)
+      let fluency = l.at("fluency", default: "")
+      if rating != none {
+        item-with-level(lang, rating, subtitle: fluency)
+      } else {
+        [- #lang — #emph(fluency)]
+      }
+    }
+  }
+
+  // `entries[]` (rated items) → per-item item-with-level. Falls back
+  // to `keywords[]` rendered as item-pills (canonical JSON Resume).
   for s in sections.at("skills", default: ()) {
     let name = s.at("name", default: "")
+    let entries = s.at("entries", default: ())
     let keywords = s.at("keywords", default: ())
-    if name != "" [= #name]
-    if keywords.len() > 0 { item-pills(keywords) }
+    if name != "" { [= #name] }
+    if entries.len() > 0 {
+      for e in entries {
+        item-with-level(e.at("name", default: ""), e.at("rating", default: 0))
+      }
+    } else if keywords.len() > 0 {
+      item-pills(keywords)
+    }
   }
 
   v(1fr)

@@ -1,0 +1,217 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json",
+  "basics": {
+    "name": "Emmett Brown",
+    "label": "Inventor & Theoretical Physicist",
+    "positions": ["Inventor", "Theoretical Physicist"],
+    "email": "doc.brown@hillvalley.edu",
+    "phone": "(555) 121-1955",
+    "url": "https://docbrownlabs.com",
+    "summary": "Visionary inventor and theoretical physicist, renowned for pioneering work in time travel, flux capacitor technology, and unconventional scientific research. Adept at creative problem-solving, interdisciplinary collaboration, and pushing the boundaries of known science.",
+    "nationality": "American",
+    "birthdate": "1920-03-22",
+    "location": {
+      "address": "1640 Riverside Drive",
+      "city": "Hill Valley",
+      "region": "California",
+      "countryCode": "USA"
+    },
+    "profiles": [
+      { "network": "Twitter",                 "username": "docbrown1955",              "url": "https://twitter.com/docbrown1955" },
+      { "network": "Mastodon",                "username": "@docbrown@sciences.social", "url": "https://sciences.social/@docbrown" },
+      { "network": "LinkedIn",                "username": "emmett-brown-hv",           "url": "https://linkedin.com/in/emmett-brown-hv" },
+      { "network": "DeLorean Time Machine", "icon": "car",                             "url": "https://en.wikipedia.org/wiki/DeLorean_time_machine" },
+      { "network": "Back to the Future",                                               "url": "https://www.backtothefuture.com/" }
+    ]
+  },
+  "work": [
+    {
+      "name": "Hill Valley Laboratory",
+      "position": "Independent Inventor & Research Scientist",
+      "location": "Hill Valley, CA, USA",
+      "startDate": "1955",
+      "highlights": [
+        "Invented the Flux Capacitor, enabling practical time travel.",
+        "Designed and constructed the DeLorean Time Machine and related temporal devices.",
+        "Conducted groundbreaking experiments in temporal mechanics and quantum theory.",
+        "Provided scientific mentorship to aspiring inventors and students.",
+        "Published theoretical work on paradoxes, causality, and energy transfer."
+      ]
+    },
+    {
+      "name": "Various Institutions",
+      "position": "Science Educator & Public Speaker",
+      "location": "USA & Europe",
+      "startDate": "1960",
+      "highlights": [
+        "Delivered lectures and demonstrations on physics, engineering, and the ethics of scientific discovery.",
+        "Organized science fairs and educational outreach for young students."
+      ]
+    },
+    {
+      "name": "Pacific Science Institute",
+      "position": "Lead Research Physicist",
+      "location": "San Francisco, CA, USA",
+      "startDate": "1955",
+      "endDate": "1972",
+      "highlights": [
+        "Led a team of six researchers investigating applied electromagnetism and high-energy particle interactions.",
+        "Designed experimental apparatus for controlled plasma discharge studies.",
+        "Co-authored seven peer-reviewed articles on electromagnetic field theory."
+      ]
+    },
+    {
+      "name": "Hill Valley University",
+      "position": "Visiting Professor: Temporal Physics",
+      "location": "Hill Valley, CA, USA",
+      "startDate": "1985",
+      "endDate": "1985",
+      "highlights": [
+        "Developed and taught courses on time travel theory and paradox management.",
+        "Supervised student projects on experimental physics and invention."
+      ]
+    },
+    {
+      "name": "California Institute of Technology",
+      "position": "Adjunct Lecturer: Quantum Theory and Paradoxes",
+      "location": "Pasadena, CA, USA",
+      "startDate": "1978",
+      "endDate": "1984",
+      "highlights": [
+        "Lectured on advanced quantum mechanics and paradoxes in theoretical physics.",
+        "Organized interdisciplinary seminars on causality and time."
+      ]
+    },
+    {
+      "name": "MIT",
+      "position": "Research Fellow: High-Energy Particle Physics",
+      "location": "Cambridge, MA, USA",
+      "startDate": "1952",
+      "endDate": "1955",
+      "highlights": [
+        "Conducted research on high-voltage circuits and early particle acceleration experiments."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "California Institute of Technology",
+      "area": "Physics",
+      "studyType": "PhD",
+      "startDate": "1948",
+      "endDate": "1951",
+      "summary": "Dissertation: \"Theoretical Approaches to Temporal Displacement and Causality\"."
+    },
+    {
+      "institution": "MIT",
+      "area": "Engineering",
+      "studyType": "BSc",
+      "startDate": "1939",
+      "endDate": "1943",
+      "summary": "Thesis: \"Practical Applications of High-Voltage Circuits in Experimental Physics\"."
+    }
+  ],
+  "awards": [
+    {
+      "title": "Lifetime Achievement in Innovation",
+      "date": "1990",
+      "awarder": "International Society of Inventors",
+      "summary": "Recognized for a lifetime of inventive contributions to science and engineering."
+    },
+    {
+      "title": "Best Experimental Demonstration",
+      "date": "1986",
+      "awarder": "World Science Congress",
+      "summary": "Awarded for the live demonstration of the DeLorean Time Machine prototype."
+    },
+    {
+      "title": "Hill Valley Science Achievement Award",
+      "date": "1985",
+      "awarder": "Hill Valley Science Society",
+      "summary": "Awarded for outstanding contributions to science and innovation in the community."
+    },
+    {
+      "title": "National Science Foundation Research Grant",
+      "date": "1979",
+      "awarder": "National Science Foundation",
+      "summary": "Awarded $340,000 for research into practical applications of electromagnetic flux in high-energy temporal systems."
+    },
+    {
+      "title": "CalTech Outstanding Alumni Award",
+      "date": "1972",
+      "awarder": "California Institute of Technology",
+      "summary": "Recognized for exceptional contributions to applied physics and interdisciplinary innovation."
+    }
+  ],
+  "publications": [
+    {
+      "name": "From DeLorean to Locomotive: Engineering Time Machines",
+      "publisher": "Society of Inventors Annual Meeting",
+      "releaseDate": "1991",
+      "summary": "Panelist on the evolution of time travel technology."
+    },
+    {
+      "name": "Paradoxes and Causality: Lessons from Time Travel",
+      "publisher": "World Science Congress",
+      "releaseDate": "1986",
+      "summary": "Invited talk on managing paradoxes and causality in theoretical physics."
+    },
+    {
+      "name": "The Flux Capacitor: A New Era in Temporal Mechanics",
+      "publisher": "International Physics Symposium",
+      "releaseDate": "1985",
+      "summary": "Keynote on the invention and implications of the flux capacitor."
+    }
+  ],
+  "skills": [
+    {
+      "name": "Physics & Engineering",
+      "entries": [
+        { "name": "Temporal Mechanics",         "rating": 5 },
+        { "name": "Quantum Theory",             "rating": 4 },
+        { "name": "Nuclear Physics",            "rating": 4 },
+        { "name": "Mechanical Engineering",     "rating": 5 },
+        { "name": "Electrical Engineering",     "rating": 4 },
+        { "name": "Automotive Restoration",     "rating": 3.5 }
+      ]
+    },
+    {
+      "name": "Technology",
+      "entries": [
+        { "name": "Flux Capacitor Design",      "rating": 5 },
+        { "name": "Time Machine Construction",  "rating": 5 },
+        { "name": "Robotics",                   "rating": 3 },
+        { "name": "Computer Programming",       "rating": 3 }
+      ]
+    },
+    {
+      "name": "Other Skills",
+      "keywords": [
+        "Creative Problem Solving", "Scientific Communication", "Workshop Safety",
+        "Mentoring Young Scientists", "Improvisation", "Experimental Design"
+      ]
+    }
+  ],
+  "languages": [
+    { "language": "English", "fluency": "Native",       "rating": 5 },
+    { "language": "German",  "fluency": "Intermediate", "rating": 3 },
+    { "language": "French",  "fluency": "Basic",        "rating": 2 }
+  ],
+  "interests": [
+    { "name": "Temporal Mechanics" },
+    { "name": "Quantum Physics" },
+    { "name": "Invention & Engineering" },
+    { "name": "DeLorean Restoration" },
+    { "name": "Science Education" }
+  ],
+  "references": [
+    {
+      "name": "Marty McFly",
+      "reference": "Long-term collaborator and field assistant in temporal experiments. Contact: marty.mcfly@hillvalley.com"
+    },
+    {
+      "name": "Clara Clayton",
+      "reference": "Advisor on science communication and educational outreach. Contact: clara.clayton@hillvalley.edu"
+    }
+  ]
+}

@@ -55,7 +55,8 @@
 
 /// Bucket profiles into ones `cv()` knows (return usernames so its
 /// social helpers can build canonical URLs) vs the rest (return full
-/// URLs via `custom-links`).
+/// URLs via `custom-links`). The `icon` extension on unknown-network
+/// profiles flows through to the custom-link's `icon-name`.
 ///
 /// -> dictionary
 #let _classify-profiles(profiles) = {
@@ -73,7 +74,11 @@
       // Unknown network → custom-link; URL preferred, username as fallback.
       let label = if net != "" { net } else { username }
       let target = if url != "" { url } else { username }
-      if target != "" { custom.push((label: label, url: target)) }
+      if target == "" { continue }
+      let link = (label: label, url: target)
+      let icon = p.at("icon", default: none)
+      if icon != none { link.insert("icon-name", icon) }
+      custom.push(link)
     }
   }
   (known: known, custom: custom)
@@ -81,7 +86,9 @@
 
 /// Build the `author` kwarg for neat-cv's `cv()` from JSON Resume
 /// `basics`. Absent fields are dropped (rather than emitted as empty)
-/// so the renderer's `"key" in author` checks stay honest.
+/// so the renderer's `"key" in author` checks stay honest. The
+/// `positions` extension overrides the canonical single-string `label`
+/// when present.
 ///
 /// -> dictionary
 #let basics-to-author(basics) = {
@@ -89,8 +96,13 @@
   let profile-info = _classify-profiles(basics.at("profiles", default: ()))
 
   let author = (firstname: parts.firstname, lastname: parts.lastname)
-  let label = basics.at("label", default: none)
-  if label != none and label != "" { author.insert("position", label) }
+  let positions = basics.at("positions", default: none)
+  if positions != none and positions.len() > 0 {
+    author.insert("position", positions)
+  } else {
+    let label = basics.at("label", default: none)
+    if label != none and label != "" { author.insert("position", label) }
+  }
   let email = basics.at("email", default: none)
   if email != none { author.insert("email", email) }
   let phone = basics.at("phone", default: none)

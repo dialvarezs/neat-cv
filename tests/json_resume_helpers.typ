@@ -1,9 +1,12 @@
-// Unit tests for the private helpers in `internal/json-resume.typ`.
-// Compile this file to run the assertions:
+// Unit tests for the mapping helpers in
+// `internal/json-resume-mapping.typ`. Compile this file to run the
+// assertions:
 //
 //   typst compile tests/json_resume_helpers.typ /tmp/sink.pdf --root .
 
-#import "../internal/json-resume-mapping.typ": _split-name, _classify-profiles
+#import "../internal/json-resume-mapping.typ": (
+  _split-name, _classify-profiles, basics-to-author,
+)
 
 
 // ---- _split-name ----
@@ -20,40 +23,62 @@
 
 // ---- _classify-profiles ----
 
-// Known networks are folded to lowercase and surface as usernames so
-// neat-cv's social helpers can build canonical URLs themselves.
+// Known networks fold to lowercase and surface as usernames.
 #assert.eq(
   _classify-profiles((
-    (network: "GitHub",   username: "docbrown", url: "https://github.com/docbrown"),
-    (network: "LinkedIn", username: "doc-brown", url: "https://linkedin.com/in/doc-brown"),
+    (network: "GitHub",   username: "docbrown",     url: "https://github.com/docbrown"),
+    (network: "LinkedIn", username: "doc-brown",    url: "https://linkedin.com/in/doc-brown"),
     (network: "X",        username: "docbrown1955", url: "https://x.com/docbrown1955"),
   )),
   (known: (github: "docbrown", linkedin: "doc-brown", twitter: "docbrown1955"), custom: ()),
 )
 
-// Unknown networks become `custom-links` with full URLs.
+// Unknown networks become custom-links with full URLs.
 #assert.eq(
   _classify-profiles((
-    (network: "DeLorean", username: "", url: "https://example.com/dl"),
+    (network: "DeLorean", url: "https://example.com/dl"),
   )),
   (known: (:), custom: ((label: "DeLorean", url: "https://example.com/dl"),)),
 )
 
-// Empty input is the identity.
+// `icon` extension propagates as `icon-name` on the custom-link record.
+#assert.eq(
+  _classify-profiles((
+    (network: "DeLorean Time Machine", icon: "car", url: "https://example.com/dl"),
+  )),
+  (known: (:), custom: ((label: "DeLorean Time Machine", url: "https://example.com/dl", icon-name: "car"),)),
+)
+
+// Edge cases: empty / none input, multi-word known network, known
+// network missing username (falls through to custom).
 #assert.eq(_classify-profiles(()), (known: (:), custom: ()))
 #assert.eq(_classify-profiles(none), (known: (:), custom: ()))
-
-// "Google Scholar" — multi-word known network folds to `scholar`.
 #assert.eq(
   _classify-profiles(((network: "Google Scholar", username: "abc"),)),
   (known: (scholar: "abc"), custom: ()),
 )
-
-// Known network without a username falls through to custom (so its URL
-// is still surfaced).
 #assert.eq(
   _classify-profiles(((network: "GitHub", url: "https://github.com/x"),)),
   (known: (:), custom: ((label: "GitHub", url: "https://github.com/x"),)),
+)
+
+
+// ---- basics-to-author: positions extension ----
+
+// Array `positions` overrides single-string `label`.
+#assert.eq(
+  basics-to-author((name: "Doc Brown", positions: ("Inventor", "Theoretical Physicist"), label: "ignored")),
+  (firstname: "Doc", lastname: "Brown", position: ("Inventor", "Theoretical Physicist")),
+)
+// Empty `positions` array falls back to `label`.
+#assert.eq(
+  basics-to-author((name: "Doc Brown", positions: (), label: "Inventor")),
+  (firstname: "Doc", lastname: "Brown", position: "Inventor"),
+)
+// No `positions` at all → canonical `label` flows through.
+#assert.eq(
+  basics-to-author((name: "Doc Brown", label: "Inventor")),
+  (firstname: "Doc", lastname: "Brown", position: "Inventor"),
 )
 
 // A small empty page so typst-compile produces a valid artifact.
