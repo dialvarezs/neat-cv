@@ -1,70 +1,115 @@
 {
   "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json",
   "basics": {
-    "name": "Ada Lovelace",
-    "label": "Computational Mathematician",
-    "email": "ada@example.com",
-    "phone": "+44 20 7946 0958",
-    "url": "https://example.com/ada",
-    "summary": "Mathematician credited with the first published algorithm intended for execution on a mechanical computer.",
+    "name": "Emmett Brown",
+    "label": "Inventor & Theoretical Physicist",
+    "email": "doc.brown@hillvalley.edu",
+    "phone": "(555) 121-1955",
+    "url": "https://docbrownlabs.com",
+    "summary": "Visionary inventor and theoretical physicist, renowned for pioneering work in time travel, flux capacitor technology, and unconventional scientific research.",
     "location": {
-      "address": "Ockham Park",
-      "city": "London",
-      "region": "Surrey",
-      "postalCode": "RH8 0",
-      "countryCode": "UK"
+      "address": "1640 Riverside Drive",
+      "city": "Hill Valley",
+      "region": "California",
+      "countryCode": "USA"
     },
     "profiles": [
-      {
-        "network": "GitHub",
-        "username": "adalovelace",
-        "url": "https://github.com/adalovelace"
-      },
-      {
-        "network": "LinkedIn",
-        "username": "ada-lovelace",
-        "url": "https://www.linkedin.com/in/ada-lovelace"
-      }
+      { "network": "Twitter",  "username": "docbrown1955",              "url": "https://twitter.com/docbrown1955" },
+      { "network": "Mastodon", "username": "@docbrown@sciences.social", "url": "https://sciences.social/@docbrown" },
+      { "network": "LinkedIn", "username": "emmett-brown-hv",           "url": "https://linkedin.com/in/emmett-brown-hv" },
+      { "network": "DeLorean Time Machine",                              "url": "https://en.wikipedia.org/wiki/DeLorean_time_machine" }
     ]
   },
   "work": [
     {
-      "name": "Analytical Engine Project",
-      "position": "Notes Author",
-      "startDate": "1842-01",
-      "endDate": "1843-08",
-      "summary": "Translated and annotated Menabrea's paper on Babbage's Analytical Engine.",
+      "name": "Hill Valley Laboratory",
+      "position": "Independent Inventor & Research Scientist",
+      "location": "Hill Valley, CA, USA",
+      "startDate": "1955",
       "highlights": [
-        "Wrote the first published algorithm, computing Bernoulli numbers.",
-        "Articulated the general-purpose nature of computing machines."
+        "Invented the Flux Capacitor, enabling practical time travel.",
+        "Designed and constructed the DeLorean Time Machine.",
+        "Conducted experiments in temporal mechanics and quantum theory."
+      ]
+    },
+    {
+      "name": "Pacific Science Institute",
+      "position": "Lead Research Physicist",
+      "location": "San Francisco, CA, USA",
+      "startDate": "1955",
+      "endDate": "1972",
+      "highlights": [
+        "Led a team investigating applied electromagnetism.",
+        "Co-authored seven peer-reviewed articles on electromagnetic field theory."
       ]
     }
   ],
   "education": [
     {
-      "institution": "Private tutoring",
-      "area": "Mathematics",
-      "studyType": "Self-directed",
-      "startDate": "1828",
-      "endDate": "1842"
+      "institution": "California Institute of Technology",
+      "area": "Physics",
+      "studyType": "PhD",
+      "startDate": "1948",
+      "endDate": "1951"
+    },
+    {
+      "institution": "MIT",
+      "area": "Engineering",
+      "studyType": "BSc",
+      "startDate": "1939",
+      "endDate": "1943"
+    }
+  ],
+  "awards": [
+    {
+      "title": "Lifetime Achievement in Innovation",
+      "date": "1990",
+      "awarder": "International Society of Inventors",
+      "summary": "For a lifetime of inventive contributions to science and engineering."
+    },
+    {
+      "title": "Best Experimental Demonstration",
+      "date": "1986",
+      "awarder": "World Science Congress",
+      "summary": "Awarded for the live demonstration of the DeLorean Time Machine prototype."
+    }
+  ],
+  "publications": [
+    {
+      "name": "The Flux Capacitor: A New Era in Temporal Mechanics",
+      "publisher": "International Physics Symposium",
+      "releaseDate": "1985",
+      "summary": "Keynote on the invention and implications of the flux capacitor."
     }
   ],
   "skills": [
     {
-      "name": "Mathematics",
-      "keywords": ["Algebra", "Differential calculus", "Number theory"]
+      "name": "Physics & Engineering",
+      "keywords": ["Temporal Mechanics", "Quantum Theory", "Mechanical Engineering"]
+    },
+    {
+      "name": "Technology",
+      "keywords": ["Flux Capacitor Design", "Time Machine Construction", "Robotics"]
     }
   ],
   "languages": [
     { "language": "English", "fluency": "Native" },
-    { "language": "French", "fluency": "Fluent" }
+    { "language": "German",  "fluency": "Intermediate" },
+    { "language": "French",  "fluency": "Basic" }
   ],
-  "awards": [
+  "interests": [
+    { "name": "Temporal Mechanics" },
+    { "name": "Quantum Physics" },
+    { "name": "DeLorean Restoration" }
+  ],
+  "references": [
     {
-      "title": "Ada Lovelace Day",
-      "date": "1843-10",
-      "awarder": "History",
-      "summary": "Recognised annually for contributions to STEM."
+      "name": "Marty McFly",
+      "reference": "Long-term collaborator and field assistant in temporal experiments."
+    },
+    {
+      "name": "Clara Clayton",
+      "reference": "Advisor on science communication and educational outreach."
     }
   ]
 }

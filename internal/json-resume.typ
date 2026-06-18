@@ -1,63 +1,18 @@
-// JSON Resume (https://jsonresume.org/schema) → neat-cv data-shape
-// adapter. Validation runs through @preview/gairm-import (which aborts
-// compile on schema errors); the remap fans the canonical document out
-// across neat-cv's split `author` dict + per-section body.
+// JSON Resume (https://jsonresume.org/schema) → neat-cv adapter.
+// Validation runs through @preview/gairm-import (which aborts compile
+// on schema errors); `basics-to-author` (in json-resume-mapping.typ)
+// turns the parsed dict into neat-cv's split `author`. The rest of
+// this file is the Typst rendering layer.
 
 #import "@preview/gairm-import:0.8.1": parse as _parse, resume-schema-strict
+#import "../src/cv.typ": cv, cv-with-side
+#import "../src/components.typ": (
+  contact-info, entry, item-pills, reference, social-links,
+)
+#import "json-resume-mapping.typ": basics-to-author
 
 
-// ---- Helpers ----
-
-/// Split on first space — neat-cv renders firstname / lastname with
-/// different weights so they can't be collapsed.
-///
-/// -> dictionary
-#let _split-name(name) = {
-  if name == none or name == "" {
-    return (firstname: "", lastname: "")
-  }
-  let parts = name.split(" ")
-  if parts.len() == 1 {
-    return (firstname: parts.at(0), lastname: "")
-  }
-  (
-    firstname: parts.at(0),
-    lastname: parts.slice(1).join(" "),
-  )
-}
-
-/// Two-line collapse of the structured JSON Resume location into the
-/// content shape neat-cv's `address` accepts.
-///
-/// -> content | none
-#let _format-address(location) = {
-  if location == none or type(location) != dictionary {
-    return none
-  }
-  let line1-parts = (
-    location.at("address", default: none),
-    location.at("city", default: none),
-    location.at("region", default: none),
-  ).filter(p => p != none and p != "")
-  let line2-parts = (
-    location.at("postalCode", default: none),
-    location.at("countryCode", default: none),
-  ).filter(p => p != none and p != "")
-
-  let line1 = line1-parts.join(", ")
-  let line2 = line2-parts.join(" ")
-
-  if line1 == "" and line2 == "" {
-    return none
-  }
-  if line2 == "" {
-    return [#line1]
-  }
-  if line1 == "" {
-    return [#line2]
-  }
-  [#line1 \ #line2]
-}
+// ---- Render helpers ----
 
 /// One-line collapse for `entry()`'s `location` slot.
 ///
@@ -75,15 +30,15 @@
   ""
 }
 
-/// Iso8601 → short human label. Malformed input has already been
-/// rejected upstream by gairm-import's schema.
-///
-/// -> string
 #let _months = (
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 )
 
+/// Iso8601 → short human label. Malformed input has already been
+/// rejected upstream by gairm-import's schema.
+///
+/// -> string
 #let _format-date(d) = {
   if d == none or d == "" { return "" }
   let parts = d.split("-")
@@ -105,55 +60,232 @@
 /// -> string
 #let _format-date-range(start, end) = {
   let s = _format-date(start)
-  let e = if end == none or end == "" {
-    "present"
-  } else {
-    _format-date(end)
-  }
+  let e = if end == none or end == "" { "present" } else { _format-date(end) }
   if s == "" and e == "present" { return "" }
   if s == "" { return e }
   s + " – " + e
 }
 
-/// Bucket profiles into ones `cv()` knows (return usernames so its
-/// social helpers can build canonical URLs) vs the rest (return full
-/// URLs via `custom-links`).
-///
-/// -> dictionary
-#let _known-networks = (
-  twitter: "twitter",
-  x: "twitter",
-  mastodon: "mastodon",
-  github: "github",
-  gitlab: "gitlab",
-  linkedin: "linkedin",
-  researchgate: "researchgate",
-  scholar: "scholar",
-  "google scholar": "scholar",
-  orcid: "orcid",
-)
+// `entry()` body for work-shaped sections: italic summary above a
+// `-`-bulleted highlights list. Empty when both are absent.
+#let _entry-body(summary, highlights) = {
+  if summary != none { summary; parbreak() }
+  if highlights.len() > 0 {
+    for h in highlights [- #h
+    ]
+  }
+}
 
-#let _classify-profiles(profiles) = {
-  let out = (:)
-  let custom = ()
-  if profiles == none { return (known: out, custom: custom) }
-  for p in profiles {
-    let net = p.at("network", default: "")
-    let username = p.at("username", default: "")
-    let url = p.at("url", default: "")
-    let key = _known-networks.at(lower(net), default: none)
-    if key != none and username != "" {
-      out.insert(key, username)
-    } else {
-      // Unknown network → custom-link; URL preferred, username as fallback.
-      let label = if net != "" { net } else { username }
-      let target = if url != "" { url } else { username }
-      if target != "" {
-        custom.push((label: label, url: target))
+
+// ---- Body section emitters ----
+
+#let _render-experience(items) = {
+  if items.len() == 0 { return [] }
+  [= Experience]
+  for w in items {
+    entry(
+      title: w.at("position", default: ""),
+      institution: w.at("name", default: ""),
+      location: _format-location-inline(w.at("location", default: none)),
+      date: _format-date-range(
+        w.at("startDate", default: none),
+        w.at("endDate", default: none),
+      ),
+      _entry-body(
+        w.at("summary", default: none),
+        w.at("highlights", default: ()),
+      ),
+    )
+  }
+}
+
+#let _render-education(items) = {
+  if items.len() == 0 { return [] }
+  [= Education]
+  for ed in items {
+    let study = ed.at("studyType", default: "")
+    let area = ed.at("area", default: "")
+    let title = if study != "" and area != "" {
+      study + " — " + area
+    } else if study != "" { study } else { area }
+    let courses = ed.at("courses", default: ())
+    let score = ed.at("score", default: none)
+    let body = {
+      if score != none [Score: #score
+      ]
+      if courses.len() > 0 [Coursework: #courses.join(", ")
+      ]
+    }
+    entry(
+      title: title,
+      institution: ed.at("institution", default: ""),
+      location: "",
+      date: _format-date-range(
+        ed.at("startDate", default: none),
+        ed.at("endDate", default: none),
+      ),
+      body,
+    )
+  }
+}
+
+#let _render-volunteer(items) = {
+  if items.len() == 0 { return [] }
+  [= Volunteering]
+  for v in items {
+    entry(
+      title: v.at("position", default: ""),
+      institution: v.at("organization", default: ""),
+      location: "",
+      date: _format-date-range(
+        v.at("startDate", default: none),
+        v.at("endDate", default: none),
+      ),
+      _entry-body(
+        v.at("summary", default: none),
+        v.at("highlights", default: ()),
+      ),
+    )
+  }
+}
+
+#let _render-projects(items) = {
+  if items.len() == 0 { return [] }
+  [= Projects]
+  for p in items {
+    let keywords = p.at("keywords", default: ())
+    let body = {
+      let desc = p.at("description", default: none)
+      if desc != none { desc; parbreak() }
+      let highlights = p.at("highlights", default: ())
+      if highlights.len() > 0 {
+        for h in highlights [- #h
+        ]
       }
+      if keywords.len() > 0 [_#keywords.join(", ")_
+      ]
+    }
+    entry(
+      title: p.at("name", default: ""),
+      institution: p.at("roles", default: ()).join(", "),
+      location: "",
+      date: _format-date-range(
+        p.at("startDate", default: none),
+        p.at("endDate", default: none),
+      ),
+      body,
+    )
+  }
+}
+
+#let _render-awards(items) = {
+  if items.len() == 0 { return [] }
+  [= Awards]
+  for a in items {
+    entry(
+      title: a.at("title", default: ""),
+      institution: a.at("awarder", default: ""),
+      location: "",
+      date: _format-date(a.at("date", default: none)),
+      a.at("summary", default: ""),
+    )
+  }
+}
+
+#let _render-certificates(items) = {
+  if items.len() == 0 { return [] }
+  [= Certificates]
+  for c in items {
+    entry(
+      title: c.at("name", default: ""),
+      institution: c.at("issuer", default: ""),
+      location: "",
+      date: _format-date(c.at("date", default: none)),
+      "",
+    )
+  }
+}
+
+#let _render-publications(items) = {
+  if items.len() == 0 { return [] }
+  [= Publications]
+  for pub in items {
+    entry(
+      title: pub.at("name", default: ""),
+      institution: pub.at("publisher", default: ""),
+      location: "",
+      date: _format-date(pub.at("releaseDate", default: none)),
+      pub.at("summary", default: ""),
+    )
+  }
+}
+
+#let _render-references(items) = {
+  if items.len() == 0 { return [] }
+  [= References]
+  for r in items {
+    reference(
+      name: r.at("name", default: ""),
+      role: "",
+      location: "",
+      r.at("reference", default: ""),
+    )
+  }
+}
+
+#let _render-body(sections) = {
+  _render-experience(sections.at("work", default: ()))
+  _render-education(sections.at("education", default: ()))
+  _render-volunteer(sections.at("volunteer", default: ()))
+  _render-projects(sections.at("projects", default: ()))
+  _render-awards(sections.at("awards", default: ()))
+  _render-certificates(sections.at("certificates", default: ()))
+  _render-publications(sections.at("publications", default: ()))
+  _render-references(sections.at("references", default: ()))
+}
+
+// Sidebar order mirrors the canonical `template/cv.typ`: summary →
+// interests → contact → languages → skills → social links at the
+// bottom.
+#let _render-sidebar(sections) = {
+  let basics = sections.at("basics", default: (:))
+  let summary = basics.at("summary", default: none)
+  if summary != none [= About me
+  #summary
+  ]
+
+  let interests = sections.at("interests", default: ())
+  if interests.len() > 0 {
+    [= Interests]
+    for i in interests {
+      let name = i.at("name", default: "")
+      let keywords = i.at("keywords", default: ())
+      if keywords.len() > 0 [- #name: #keywords.join(", ")
+      ] else [- #name
+      ]
     }
   }
-  (known: out, custom: custom)
+
+  [= Contact
+  #contact-info()
+  ]
+
+  let languages = sections.at("languages", default: ())
+  if languages.len() > 0 {
+    [= Languages]
+    for l in languages [- #l.at("language", default: "") — _#l.at("fluency", default: "")_
+    ]
+  }
+
+  for s in sections.at("skills", default: ()) {
+    let name = s.at("name", default: "")
+    let keywords = s.at("keywords", default: ())
+    if name != "" [= #name]
+    if keywords.len() > 0 { item-pills(keywords) }
+  }
+
+  v(1fr)
+  social-links()
 }
 
 
@@ -166,42 +298,29 @@
 /// -> dictionary
 #let from-json-resume(data) = {
   let resume = _parse(data, schema: resume-schema-strict)
-  let basics = resume.at("basics", default: (:))
+  (author: basics-to-author(resume.at("basics", default: (:))), sections: resume)
+}
 
-  let name-parts = _split-name(basics.at("name", default: ""))
-
-  let profile-info = _classify-profiles(basics.at("profiles", default: ()))
-
-  let author = (:)
-  author.insert("firstname", name-parts.firstname)
-  author.insert("lastname", name-parts.lastname)
-
-  let label = basics.at("label", default: none)
-  if label != none and label != "" {
-    author.insert("position", label)
+// `..rest` forwards every kwarg added to `cv` in a future release
+// without an adapter edit. Extra positionals are rejected up front so
+// `neat-cv-from-json(p, my-prefs)` (drift from the kwarg form) panics
+// with a wrapper-aware diagnostic instead of a cv-level one.
+#let neat-cv-from-json(data, ..rest) = {
+  if rest.pos().len() > 0 {
+    panic(
+      "neat-cv-from-json takes one positional (`data`); pass cv() kwargs as named arguments. Got extra positionals: "
+        + repr(rest.pos()),
+    )
   }
-
-  let email = basics.at("email", default: none)
-  if email != none { author.insert("email", email) }
-
-  let phone = basics.at("phone", default: none)
-  if phone != none { author.insert("phone", phone) }
-
-  let website = basics.at("url", default: none)
-  if website != none { author.insert("website", website) }
-
-  let address = _format-address(basics.at("location", default: none))
-  if address != none { author.insert("address", address) }
-
-  for (key, value) in profile-info.known.pairs() {
-    author.insert(key, value)
-  }
-  if profile-info.custom.len() > 0 {
-    author.insert("custom-links", profile-info.custom)
-  }
-
-  (
-    author: author,
-    sections: resume,
+  let parsed = from-json-resume(data)
+  // Caller-supplied `author:` overrides the JSON-derived one.
+  let kwargs = (author: parsed.author)
+  for (k, v) in rest.named() { kwargs.insert(k, v) }
+  cv(
+    ..kwargs,
+    cv-with-side(
+      _render-sidebar(parsed.sections),
+      _render-body(parsed.sections),
+    ),
   )
 }
