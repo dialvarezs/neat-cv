@@ -13,10 +13,8 @@
 
 // ---- JSON Resume one-call wrapper ----
 
-// Render a parsed JSON Resume `sections` dict into a body composed of
-// `entry()` blocks per work/education/volunteer/award/certificate/
-// publication/project, plus side-panel content (skills, languages,
-// interests, references) for `cv-with-side`.
+// Body emitter for `neat-cv-from-json` — one `entry()` per
+// work/education/volunteer/project/award/certificate/publication item.
 #let _render-sections(sections) = {
   let work = sections.at("work", default: ())
   let education = sections.at("education", default: ())
@@ -198,9 +196,7 @@
   }
 }
 
-// Render the sidebar content (contact, summary, skills, languages,
-// interests) for the default `cv-with-side` layout produced by
-// `neat-cv-from-json`.
+// Sidebar emitter for `neat-cv-from-json`'s default `cv-with-side` layout.
 #let _render-sidebar(sections) = {
   let basics = sections.at("basics", default: (:))
   let skills = sections.at("skills", default: ())
@@ -278,9 +274,7 @@
       _render-sections(parsed.sections),
     )
   }
-  // Forward the author dict plus any caller-supplied kwargs (accent
-  // colour, fonts, paper size, profile-picture, ...). Caller-supplied
-  // `author:` overrides the JSON-derived one.
+  // Caller-supplied `author:` overrides the JSON-derived one.
   let kwargs = (author: parsed.author)
   for (k, v) in rest.named() {
     kwargs.insert(k, v)

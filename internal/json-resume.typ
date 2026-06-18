@@ -1,24 +1,15 @@
-// Adapter from a JSON Resume document to neat-cv's `cv()` shape.
-//
-// Pattern mirrors smur89/alta-typst PR #154: validation goes through
-// `@preview/gairm-import` so the resume is normalised (and aborts compile
-// on schema errors). Unlike alta — which natively consumes the JSON
-// Resume shape — neat-cv's `cv()` takes a split `author` dict and an
-// imperative body, so this adapter also reshapes the data. The one-call
-// wrapper `neat-cv-from-json` lives in lib.typ since it composes `cv`.
+// JSON Resume (https://jsonresume.org/schema) → neat-cv data-shape
+// adapter. Validation runs through @preview/gairm-import (which aborts
+// compile on schema errors); the remap fans the canonical document out
+// across neat-cv's split `author` dict + per-section body.
 
-#import "@preview/gairm-import:0.8.1": (
-  parse as _parse,
-  resume-schema-strict,
-)
+#import "@preview/gairm-import:0.8.1": parse as _parse, resume-schema-strict
 
 
 // ---- Helpers ----
 
-/// Split `basics.name` on the first space. Single-word names go entirely
-/// into `firstname` with an empty `lastname`. neat-cv displays both in
-/// the header with different weights, so we cannot collapse one into
-/// the other.
+/// Split on first space — neat-cv renders firstname / lastname with
+/// different weights so they can't be collapsed.
 ///
 /// -> dictionary
 #let _split-name(name) = {
@@ -35,11 +26,8 @@
   )
 }
 
-/// Format a JSON Resume `location` dict into neat-cv's `address`. The
-/// JSON Resume shape is structured (`address`, `city`, `region`,
-/// `postalCode`, `countryCode`); neat-cv accepts either a string or
-/// content with linebreaks. We render two lines: street/city/region,
-/// then postcode + country.
+/// Two-line collapse of the structured JSON Resume location into the
+/// content shape neat-cv's `address` accepts.
 ///
 /// -> content | none
 #let _format-address(location) = {
@@ -71,8 +59,7 @@
   [#line1 \ #line2]
 }
 
-/// Compact a JSON Resume `location` dict into a one-line string for use
-/// in `entry()`'s `location` slot (work, education, etc.).
+/// One-line collapse for `entry()`'s `location` slot.
 ///
 /// -> string
 #let _format-location-inline(loc) = {
@@ -88,10 +75,8 @@
   ""
 }
 
-/// Format a JSON Resume date string ("YYYY", "YYYY-MM", "YYYY-MM-DD")
-/// into a short human label. Falls back to the raw string if the shape
-/// is unexpected — gairm-import's strict schema already rejected truly
-/// malformed values.
+/// Iso8601 → short human label. Malformed input has already been
+/// rejected upstream by gairm-import's schema.
 ///
 /// -> string
 #let _months = (
@@ -114,8 +99,8 @@
   d
 }
 
-/// Render a start/end range. Open-ended entries (no `endDate`) render as
-/// "Jan 2022 – present" to match the conventions in `template/cv.typ`.
+/// Open-ended entries (no `endDate`) render as "… – present", matching
+/// the convention in `template/cv.typ`.
 ///
 /// -> string
 #let _format-date-range(start, end) = {
@@ -130,12 +115,9 @@
   s + " – " + e
 }
 
-/// Map JSON Resume profile `network` values to the keys neat-cv's
-/// `cv()` author dict recognises (`twitter`, `mastodon`, `github`,
-/// `gitlab`, `linkedin`, `researchgate`, `scholar`, `orcid`). The
-/// `username` field is preferred so neat-cv's social helpers can build
-/// canonical URLs; for networks we don't know, we keep them as
-/// `custom-links` with their full URL.
+/// Bucket profiles into ones `cv()` knows (return usernames so its
+/// social helpers can build canonical URLs) vs the rest (return full
+/// URLs via `custom-links`).
 ///
 /// -> dictionary
 #let _known-networks = (
@@ -163,8 +145,7 @@
     if key != none and username != "" {
       out.insert(key, username)
     } else {
-      // Unknown network → custom-link with full URL (falls back to
-      // username if no URL is present).
+      // Unknown network → custom-link; URL preferred, username as fallback.
       let label = if net != "" { net } else { username }
       let target = if url != "" { url } else { username }
       if target != "" {
@@ -178,10 +159,9 @@
 
 // ---- Public API ----
 
-/// Validate and reshape a parsed JSON Resume document.
-///
-/// Returns a dict with `author` (the `cv()` author kwarg) and
-/// `sections` (the parsed resume, ready for body rendering).
+/// Validate + reshape. Returns `(author, sections)` — `author` plugs
+/// into `cv()`'s `author:` kwarg; `sections` is the parsed resume for
+/// body rendering.
 ///
 /// -> dictionary
 #let from-json-resume(data) = {
