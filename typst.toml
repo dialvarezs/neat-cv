@@ -8,7 +8,7 @@ description = "A modern and elegant CV template for Typst, inspired by Awesome C
 repository = "https://github.com/dialvarezs/neat-cv"
 keywords = ["Modern", "Resume", "Curriculum Vitae", "CV"]
 categories = ["cv"]
-compiler = "0.13.0"
+compiler = "0.15.0"
 exclude = ["assets", "tests"]
 
 [template]
