@@ -4,12 +4,26 @@
 // turns the parsed dict into neat-cv's split `author`. The rest of
 // this file is the Typst rendering layer.
 
-#import "@preview/gairm-import:0.8.1": parse as _parse, resume-schema-strict
+#import "@preview/gairm-import:0.8.1": (
+  parse as _parse, resume-schema-strict,
+  lens, add-field, content-type,
+)
 #import "../src/cv.typ": cv, cv-with-side
 #import "../src/components.typ": (
   contact-info, entry, item-pills, reference, social-links,
 )
 #import "json-resume-mapping.typ": basics-to-author
+
+// JSON Resume's canonical `education[]` has no body field (only
+// `courses[]` for coursework). Declare a `summary` extension so the
+// upstream template's "Dissertation: …" / "Thesis: …" lines land
+// somewhere — a common convention in JSON Resume documents in the wild.
+#let _schema = add-field(
+  resume-schema-strict,
+  lens(("education", "items")),
+  "summary",
+  content-type,
+)
 
 
 // ---- Render helpers ----
@@ -110,7 +124,9 @@
     } else if study != "" { study } else { area }
     let courses = ed.at("courses", default: ())
     let score = ed.at("score", default: none)
+    let summary = ed.at("summary", default: none)
     let body = {
+      if summary != none { summary; parbreak() }
       if score != none [Score: #score
       ]
       if courses.len() > 0 [Coursework: #courses.join(", ")
@@ -297,7 +313,7 @@
 ///
 /// -> dictionary
 #let from-json-resume(data) = {
-  let resume = _parse(data, schema: resume-schema-strict)
+  let resume = _parse(data, schema: _schema)
   (author: basics-to-author(resume.at("basics", default: (:))), sections: resume)
 }
 

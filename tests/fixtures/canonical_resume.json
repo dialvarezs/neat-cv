@@ -96,14 +96,16 @@
       "area": "Physics",
       "studyType": "PhD",
       "startDate": "1948",
-      "endDate": "1951"
+      "endDate": "1951",
+      "summary": "Dissertation: \"Theoretical Approaches to Temporal Displacement and Causality\"."
     },
     {
       "institution": "MIT",
       "area": "Engineering",
       "studyType": "BSc",
       "startDate": "1939",
-      "endDate": "1943"
+      "endDate": "1943",
+      "summary": "Thesis: \"Practical Applications of High-Voltage Circuits in Experimental Physics\"."
     }
   ],
   "awards": [
