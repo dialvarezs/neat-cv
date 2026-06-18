@@ -5,15 +5,14 @@
 // this file is the Typst rendering layer.
 
 #import "@preview/gairm-import:0.8.1": (
-  parse as _parse, resume-schema-strict,
-  lens, add-field, object, array-of,
-  str-type, number-type, content-type,
+  add-field, array-of, content-type, lens, number-type, object, parse as _parse,
+  resume-schema-strict, str-type,
 )
 #import "../src/cv.typ": cv, cv-with-side
 #import "../src/components.typ": (
   contact-info, entry, item-pills, item-with-level, reference, social-links,
 )
-#import "json-resume-mapping.typ": basics-to-author, _safe-join
+#import "json-resume-mapping.typ": _safe-join, basics-to-author
 
 // Optional extensions on the strict schema. All `add-field` (not
 // `set-required`) so a vanilla JSON Resume document still validates.
@@ -70,8 +69,18 @@
 }
 
 #let _months = (
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 )
 
 /// Iso8601 → short human label. Defensive against year-as-JSON-number
@@ -107,9 +116,13 @@
 // `entry()` body for work-shaped sections: italic summary above a
 // `-`-bulleted highlights list. Empty when both are absent.
 #let _entry-body(summary, highlights) = {
-  if summary != none { summary; parbreak() }
+  if summary != none {
+    summary
+    parbreak()
+  }
   if highlights.len() > 0 {
-    for h in highlights [- #h
+    for h in highlights [
+      - #h
     ]
   }
 }
@@ -139,8 +152,16 @@
   }
 }
 
-#let _render-experience(items) = _render-work-shaped(items, "Experience", "name")
-#let _render-volunteer(items) = _render-work-shaped(items, "Volunteering", "organization")
+#let _render-experience(items) = _render-work-shaped(
+  items,
+  "Experience",
+  "name",
+)
+#let _render-volunteer(items) = _render-work-shaped(
+  items,
+  "Volunteering",
+  "organization",
+)
 
 #let _render-education(items) = {
   if items.len() == 0 { return [] }
@@ -155,7 +176,10 @@
     let score = ed.at("score", default: none)
     let summary = ed.at("summary", default: none)
     let body = {
-      if summary != none { summary; parbreak() }
+      if summary != none {
+        summary
+        parbreak()
+      }
       if score != none [Score: #score
       ]
       if courses.len() > 0 [Coursework: #courses.join(", ")
@@ -181,10 +205,14 @@
     let keywords = p.at("keywords", default: ())
     let body = {
       let desc = p.at("description", default: none)
-      if desc != none { desc; parbreak() }
+      if desc != none {
+        desc
+        parbreak()
+      }
       let highlights = p.at("highlights", default: ())
       if highlights.len() > 0 {
-        for h in highlights [- #h
+        for h in highlights [
+          - #h
         ]
       }
       if keywords.len() > 0 [_#keywords.join(", ")_
@@ -206,11 +234,20 @@
 // Flat single-date sections (awards / certificates / publications)
 // share an `entry()` shape — only the field names and heading differ.
 // `summary-key: none` for sections without a body field.
-#let _render-flat-entries(items, heading, title-key, inst-key, date-key, summary-key) = {
+#let _render-flat-entries(
+  items,
+  heading,
+  title-key,
+  inst-key,
+  date-key,
+  summary-key,
+) = {
   if items.len() == 0 { return [] }
   [= #heading]
   for it in items {
-    let body = if summary-key != none { it.at(summary-key, default: "") } else { "" }
+    let body = if summary-key != none { it.at(summary-key, default: "") } else {
+      ""
+    }
     entry(
       title: it.at(title-key, default: ""),
       institution: it.at(inst-key, default: ""),
@@ -221,9 +258,30 @@
   }
 }
 
-#let _render-awards(items) = _render-flat-entries(items, "Awards", "title", "awarder", "date", "summary")
-#let _render-certificates(items) = _render-flat-entries(items, "Certificates", "name", "issuer", "date", none)
-#let _render-publications(items) = _render-flat-entries(items, "Publications", "name", "publisher", "releaseDate", "summary")
+#let _render-awards(items) = _render-flat-entries(
+  items,
+  "Awards",
+  "title",
+  "awarder",
+  "date",
+  "summary",
+)
+#let _render-certificates(items) = _render-flat-entries(
+  items,
+  "Certificates",
+  "name",
+  "issuer",
+  "date",
+  none,
+)
+#let _render-publications(items) = _render-flat-entries(
+  items,
+  "Publications",
+  "name",
+  "publisher",
+  "releaseDate",
+  "summary",
+)
 
 #let _render-references(items) = {
   if items.len() == 0 { return [] }
@@ -256,7 +314,7 @@
   let basics = sections.at("basics", default: (:))
   let summary = basics.at("summary", default: none)
   if summary != none [= About me
-  #summary
+    #summary
   ]
 
   let interests = sections.at("interests", default: ())
@@ -266,17 +324,19 @@
       let name = i.at("name", default: "")
       let keywords = i.at("keywords", default: ())
       if keywords.len() > 0 {
-        [- #name: #keywords.join(", ")
+        [
+          - #name: #keywords.join(", ")
         ]
       } else {
-        [- #name
+        [
+          - #name
         ]
       }
     }
   }
 
   [= Contact
-  #contact-info()
+    #contact-info()
   ]
 
   // `parbreak()` between fields so Nationality and Date of birth don't
@@ -351,7 +411,10 @@
 /// -> dictionary
 #let from-json-resume(data) = {
   let resume = _parse(data, schema: _schema)
-  (author: basics-to-author(resume.at("basics", default: (:))), sections: resume)
+  (
+    author: basics-to-author(resume.at("basics", default: (:))),
+    sections: resume,
+  )
 }
 
 // `..rest` forwards every kwarg added to `cv` in a future release

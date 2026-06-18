@@ -90,8 +90,10 @@
       let label = if net != "" { net } else { username }
       let target = if url != "" { url } else { username }
       let has-scheme = (
-        target.starts-with("http://") or target.starts-with("https://")
-          or target.starts-with("mailto:") or target.starts-with("tel:")
+        target.starts-with("http://")
+          or target.starts-with("https://")
+          or target.starts-with("mailto:")
+          or target.starts-with("tel:")
       )
       if target != "" and has-scheme {
         let link = (label: label, url: target)

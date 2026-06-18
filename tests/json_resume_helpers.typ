@@ -5,13 +5,16 @@
 //   typst compile tests/json_resume_helpers.typ /tmp/sink.pdf --root .
 
 #import "../internal/json-resume-mapping.typ": (
-  _split-name, _classify-profiles, basics-to-author,
+  _classify-profiles, _split-name, basics-to-author,
 )
 
 
 // ---- _split-name ----
 
-#assert.eq(_split-name("Emmett Brown"), (firstname: "Emmett", lastname: "Brown"))
+#assert.eq(_split-name("Emmett Brown"), (
+  firstname: "Emmett",
+  lastname: "Brown",
+))
 #assert.eq(
   _split-name("Emmett Lathrop Brown"),
   (firstname: "Emmett", lastname: "Lathrop Brown"),
@@ -26,11 +29,22 @@
 // Known networks fold to lowercase and surface as usernames.
 #assert.eq(
   _classify-profiles((
-    (network: "GitHub",   username: "docbrown",     url: "https://github.com/docbrown"),
-    (network: "LinkedIn", username: "doc-brown",    url: "https://linkedin.com/in/doc-brown"),
-    (network: "X",        username: "docbrown1955", url: "https://x.com/docbrown1955"),
+    (
+      network: "GitHub",
+      username: "docbrown",
+      url: "https://github.com/docbrown",
+    ),
+    (
+      network: "LinkedIn",
+      username: "doc-brown",
+      url: "https://linkedin.com/in/doc-brown",
+    ),
+    (network: "X", username: "docbrown1955", url: "https://x.com/docbrown1955"),
   )),
-  (known: (github: "docbrown", linkedin: "doc-brown", twitter: "docbrown1955"), custom: ()),
+  (
+    known: (github: "docbrown", linkedin: "doc-brown", twitter: "docbrown1955"),
+    custom: (),
+  ),
 )
 
 // Unknown networks become custom-links with full URLs.
@@ -44,9 +58,22 @@
 // `icon` extension propagates as `icon-name` on the custom-link record.
 #assert.eq(
   _classify-profiles((
-    (network: "DeLorean Time Machine", icon: "car", url: "https://example.com/dl"),
+    (
+      network: "DeLorean Time Machine",
+      icon: "car",
+      url: "https://example.com/dl",
+    ),
   )),
-  (known: (:), custom: ((label: "DeLorean Time Machine", url: "https://example.com/dl", icon-name: "car"),)),
+  (
+    known: (:),
+    custom: (
+      (
+        label: "DeLorean Time Machine",
+        url: "https://example.com/dl",
+        icon-name: "car",
+      ),
+    ),
+  ),
 )
 
 // Edge cases: empty / none input, multi-word known network, known
@@ -79,8 +106,16 @@
 
 // Array `positions` overrides single-string `label`.
 #assert.eq(
-  basics-to-author((name: "Doc Brown", positions: ("Inventor", "Theoretical Physicist"), label: "ignored")),
-  (firstname: "Doc", lastname: "Brown", position: ("Inventor", "Theoretical Physicist")),
+  basics-to-author((
+    name: "Doc Brown",
+    positions: ("Inventor", "Theoretical Physicist"),
+    label: "ignored",
+  )),
+  (
+    firstname: "Doc",
+    lastname: "Brown",
+    position: ("Inventor", "Theoretical Physicist"),
+  ),
 )
 // Empty `positions` array falls back to `label`.
 #assert.eq(
