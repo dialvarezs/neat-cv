@@ -16,12 +16,14 @@
 #import "json-resume-mapping.typ": basics-to-author
 
 // Optional extensions on the strict schema. All `add-field` (not
-// `set-required`) so a vanilla JSON Resume document still validates:
+// `set-required`) so a vanilla JSON Resume document still validates.
+// Field names mirror neat-cv's existing template vocabulary
+// (`item-with-level` → `level`, `item-pills(keywords)` → `keywords`).
 //   - basics.positions       — array of roles, overrides single-string `label`
 //   - basics.profiles[].icon — Font Awesome name for custom-link profiles
 //   - basics.nationality     — Personal block (sidebar)
 //   - basics.birthdate       — Personal block (sidebar)
-//   - languages[].rating     — item-with-level rendering (mirrors altacv)
+//   - languages[].level      — drives item-with-level rendering
 //   - skills[].entries       — per-keyword item-with-level rendering
 //   - education[].summary    — dissertation / thesis line on the entry
 #let _schema = {
@@ -30,12 +32,12 @@
   s = add-field(s, lens(("basics", "profiles", "items")), "icon", str-type)
   s = add-field(s, lens(("basics",)), "nationality", str-type)
   s = add-field(s, lens(("basics",)), "birthdate", str-type)
-  s = add-field(s, lens(("languages", "items")), "rating", number-type)
+  s = add-field(s, lens(("languages", "items")), "level", number-type)
   s = add-field(
     s,
     lens(("skills", "items")),
     "entries",
-    array-of(object((name: str-type, rating: number-type))),
+    array-of(object((name: str-type, level: number-type))),
   )
   s = add-field(s, lens(("education", "items")), "summary", content-type)
   s
@@ -316,25 +318,25 @@
     ]
   }
 
-  // `rating` (numeric) → item-with-level with `fluency` as subtitle.
-  // Mirrors altacv's languages[].rating extension.
+  // `level` (numeric) → item-with-level with `fluency` as subtitle;
+  // canonical `fluency`-only documents fall back to a bullet line.
   let languages = sections.at("languages", default: ())
   if languages.len() > 0 {
     [= Languages]
     for l in languages {
       let lang = l.at("language", default: "")
-      let rating = l.at("rating", default: none)
+      let level = l.at("level", default: none)
       let fluency = l.at("fluency", default: "")
-      if rating != none {
-        item-with-level(lang, rating, subtitle: fluency)
+      if level != none {
+        item-with-level(lang, level, subtitle: fluency)
       } else {
         [- #lang — #emph(fluency)]
       }
     }
   }
 
-  // `entries[]` (rated items) → per-item item-with-level. Falls back
-  // to `keywords[]` rendered as item-pills (canonical JSON Resume).
+  // `entries[]` (levelled items) → per-item item-with-level. Falls
+  // back to `keywords[]` rendered as item-pills (canonical JSON Resume).
   for s in sections.at("skills", default: ()) {
     let name = s.at("name", default: "")
     let entries = s.at("entries", default: ())
@@ -342,7 +344,7 @@
     if name != "" { [= #name] }
     if entries.len() > 0 {
       for e in entries {
-        item-with-level(e.at("name", default: ""), e.at("rating", default: 0))
+        item-with-level(e.at("name", default: ""), e.at("level", default: 0))
       }
     } else if keywords.len() > 0 {
       item-pills(keywords)

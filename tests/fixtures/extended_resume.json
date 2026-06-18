@@ -167,21 +167,21 @@
     {
       "name": "Physics & Engineering",
       "entries": [
-        { "name": "Temporal Mechanics",         "rating": 5 },
-        { "name": "Quantum Theory",             "rating": 4 },
-        { "name": "Nuclear Physics",            "rating": 4 },
-        { "name": "Mechanical Engineering",     "rating": 5 },
-        { "name": "Electrical Engineering",     "rating": 4 },
-        { "name": "Automotive Restoration",     "rating": 3.5 }
+        { "name": "Temporal Mechanics",         "level": 5 },
+        { "name": "Quantum Theory",             "level": 4 },
+        { "name": "Nuclear Physics",            "level": 4 },
+        { "name": "Mechanical Engineering",     "level": 5 },
+        { "name": "Electrical Engineering",     "level": 4 },
+        { "name": "Automotive Restoration",     "level": 3.5 }
       ]
     },
     {
       "name": "Technology",
       "entries": [
-        { "name": "Flux Capacitor Design",      "rating": 5 },
-        { "name": "Time Machine Construction",  "rating": 5 },
-        { "name": "Robotics",                   "rating": 3 },
-        { "name": "Computer Programming",       "rating": 3 }
+        { "name": "Flux Capacitor Design",      "level": 5 },
+        { "name": "Time Machine Construction",  "level": 5 },
+        { "name": "Robotics",                   "level": 3 },
+        { "name": "Computer Programming",       "level": 3 }
       ]
     },
     {
@@ -193,9 +193,9 @@
     }
   ],
   "languages": [
-    { "language": "English", "fluency": "Native",       "rating": 5 },
-    { "language": "German",  "fluency": "Intermediate", "rating": 3 },
-    { "language": "French",  "fluency": "Basic",        "rating": 2 }
+    { "language": "English", "fluency": "Native",       "level": 5 },
+    { "language": "German",  "fluency": "Intermediate", "level": 3 },
+    { "language": "French",  "fluency": "Basic",        "level": 2 }
   ],
   "interests": [
     { "name": "Temporal Mechanics" },
