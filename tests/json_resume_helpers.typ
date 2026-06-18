@@ -62,6 +62,18 @@
   (known: (:), custom: ((label: "GitHub", url: "https://github.com/x"),)),
 )
 
+// Unknown network with only a username (no URL scheme) — Typst's
+// link() would render a broken hyperlink, so the entry is skipped.
+#assert.eq(
+  _classify-profiles(((network: "PrivateThing", username: "docbrown"),)),
+  (known: (:), custom: ()),
+)
+// `mailto:` / `tel:` schemes are accepted (functional Typst links).
+#assert.eq(
+  _classify-profiles(((network: "Email", url: "mailto:doc@example.com"),)),
+  (known: (:), custom: ((label: "Email", url: "mailto:doc@example.com"),)),
+)
+
 
 // ---- basics-to-author: positions extension ----
 

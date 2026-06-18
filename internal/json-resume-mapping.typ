@@ -84,13 +84,21 @@
       known.insert(key, username)
     } else {
       // Unknown network → custom-link; URL preferred, username as fallback.
+      // Typst's `link()` (which `social-links()` calls for custom-links)
+      // requires a real URL scheme — skip username-only entries since
+      // they'd render as visibly-broken hyperlinks in the PDF.
       let label = if net != "" { net } else { username }
       let target = if url != "" { url } else { username }
-      if target == "" { continue }
-      let link = (label: label, url: target)
-      let icon = p.at("icon", default: none)
-      if icon != none { link.insert("icon-name", icon) }
-      custom.push(link)
+      let has-scheme = (
+        target.starts-with("http://") or target.starts-with("https://")
+          or target.starts-with("mailto:") or target.starts-with("tel:")
+      )
+      if target != "" and has-scheme {
+        let link = (label: label, url: target)
+        let icon = p.at("icon", default: none)
+        if icon != none { link.insert("icon-name", icon) }
+        custom.push(link)
+      }
     }
   }
   (known: known, custom: custom)
