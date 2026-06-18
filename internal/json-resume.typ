@@ -13,7 +13,7 @@
 #import "../src/components.typ": (
   contact-info, entry, item-pills, item-with-level, reference, social-links,
 )
-#import "json-resume-mapping.typ": basics-to-author
+#import "json-resume-mapping.typ": basics-to-author, _safe-join
 
 // Optional extensions on the strict schema. All `add-field` (not
 // `set-required`) so a vanilla JSON Resume document still validates.
@@ -49,11 +49,6 @@
 
 
 // ---- Render helpers ----
-
-// Empty `().join(...)` returns `none` in Typst, which trips `entry()`'s
-// `x != ""` guards downstream and produces orphan icons / empty rows.
-// Always coerce to a real string.
-#let _safe-join(arr, sep) = if arr.len() == 0 { "" } else { arr.join(sep) }
 
 /// One-line collapse for `entry()`'s `location` slot.
 ///
