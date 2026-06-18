@@ -180,3 +180,54 @@ Sincerely,
 ```
 
 For a complete example, see the `template/letter.typ` file in the repository.
+
+### Loading from a JSON Resume document
+
+If you already maintain your CV as a [JSON Resume](https://jsonresume.org/)
+document (`resume.json`), neat-cv can load it directly. Validation and
+type coercion go through
+[`@preview/gairm-import`](https://typst.app/universe/package/gairm-import),
+so schema errors abort compilation with a combined report.
+
+One-call (renders a full document with the standard `cv-with-side`
+layout):
+
+```typst
+#import "@preview/neat-cv:1.1.0": neat-cv-from-json
+
+#neat-cv-from-json(
+  json("resume.json"),
+  accent-color: rgb("#4682b4"),
+  profile-picture: image("my_profile.png"),
+)
+```
+
+Any keyword argument accepted by `cv()` (accent colour, fonts, paper
+size, profile picture, GDPR footer, …) can be passed alongside the
+data; they override the JSON-derived defaults.
+
+If you'd rather drive the layout yourself — keeping the imperative
+template style and only borrowing the data — use `from-json-resume`,
+which returns a `(author: …, sections: …)` dict:
+
+```typst
+#import "@preview/neat-cv:1.1.0": cv, cv-with-side, entry, from-json-resume
+
+#let resume = from-json-resume(json("resume.json"))
+
+#show: cv.with(author: resume.author)
+
+#cv-with-side[
+  // …your sidebar…
+][
+  = Experience
+  #for w in resume.sections.work {
+    entry(
+      title: w.position,
+      institution: w.name,
+      date: w.startDate,
+      w.at("summary", default: ""),
+    )
+  }
+]
+```

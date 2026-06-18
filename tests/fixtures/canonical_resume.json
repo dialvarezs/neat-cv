@@ -1,0 +1,70 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json",
+  "basics": {
+    "name": "Ada Lovelace",
+    "label": "Computational Mathematician",
+    "email": "ada@example.com",
+    "phone": "+44 20 7946 0958",
+    "url": "https://example.com/ada",
+    "summary": "Mathematician credited with the first published algorithm intended for execution on a mechanical computer.",
+    "location": {
+      "address": "Ockham Park",
+      "city": "London",
+      "region": "Surrey",
+      "postalCode": "RH8 0",
+      "countryCode": "UK"
+    },
+    "profiles": [
+      {
+        "network": "GitHub",
+        "username": "adalovelace",
+        "url": "https://github.com/adalovelace"
+      },
+      {
+        "network": "LinkedIn",
+        "username": "ada-lovelace",
+        "url": "https://www.linkedin.com/in/ada-lovelace"
+      }
+    ]
+  },
+  "work": [
+    {
+      "name": "Analytical Engine Project",
+      "position": "Notes Author",
+      "startDate": "1842-01",
+      "endDate": "1843-08",
+      "summary": "Translated and annotated Menabrea's paper on Babbage's Analytical Engine.",
+      "highlights": [
+        "Wrote the first published algorithm, computing Bernoulli numbers.",
+        "Articulated the general-purpose nature of computing machines."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Private tutoring",
+      "area": "Mathematics",
+      "studyType": "Self-directed",
+      "startDate": "1828",
+      "endDate": "1842"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Mathematics",
+      "keywords": ["Algebra", "Differential calculus", "Number theory"]
+    }
+  ],
+  "languages": [
+    { "language": "English", "fluency": "Native" },
+    { "language": "French", "fluency": "Fluent" }
+  ],
+  "awards": [
+    {
+      "title": "Ada Lovelace Day",
+      "date": "1843-10",
+      "awarder": "History",
+      "summary": "Recognised annually for contributions to STEM."
+    }
+  ]
+}

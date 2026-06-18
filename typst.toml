@@ -9,7 +9,7 @@ repository = "https://github.com/dialvarezs/neat-cv"
 keywords = ["Modern", "Resume", "Curriculum Vitae", "CV"]
 categories = ["cv"]
 compiler = "0.13.0"
-exclude = ["assets"]
+exclude = ["assets", "tests"]
 
 [template]
 path = "template"
