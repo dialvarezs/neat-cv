@@ -356,6 +356,25 @@
     }
   }
 
+  if "custom-contact" in author {
+    for item in author.custom-contact {
+      let icon-cell = if "icon-name" in item and item.icon-name != none {
+        [#v(-0.2em) #fa-icon(item.icon-name, fill: accent-color)]
+      } else {
+        []
+      }
+      let content = if "url" in item and item.url != none {
+        link(item.url, item.label)
+      } else {
+        item.label
+      }
+      contact-items += (
+        icon-cell,
+        content,
+      )
+    }
+  }
+
   if contact-items.len() > 0 {
     table(
       columns: (1em, 1fr),
