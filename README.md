@@ -185,3 +185,8 @@ Sincerely,
 ```
 
 For a complete example, see the `template/letter.typ` file in the repository.
+
+## 🔗 相关工具 / Related tools
+
+- [简历大师 Resume Master](https://markmiller1.github.io/resume-master/) — 免费、纯前端、隐私优先的在线简历生成器，8 套模板 + ATS 检测 + 64 页求职指南，数据不出本机
+- [awesome-resume-cn](https://github.com/markmiller1/awesome-resume-cn) — 中文免费简历资源精选清单（工具 / 模板 / 写作指南）
