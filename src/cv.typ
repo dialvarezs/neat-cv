@@ -45,7 +45,9 @@
 ///
 /// -> content
 #let cv(
-  /// Author information dictionary. Available keys: `firstname`, `lastname`, `email`, `phone`, `address`, `position` (string or array), `website`, `twitter`, `mastodon`, `matrix`, `github`, `gitlab`, `linkedin`, `researchgate`, `scholar`, `orcid`, `custom-links` (array of dictionaries with `icon-name` (optional), `label`, and `url`).
+  /// Author information dictionary. Available keys: `firstname`, `lastname`, `email`, `phone`, `address`, `position` (string or array),
+  /// `website`, `twitter`, `mastodon`, `matrix`, `github`, `gitlab`, `linkedin`, `researchgate`, `scholar`, `orcid`, `hugging-face`,
+  /// `kaggle`, `medium`, `dev`, `npm`, `custom-links` (array of dictionaries with `icon-name` (optional), `label`, and `url`).
   /// -> dictionary
   author: (:),
   /// Profile picture
